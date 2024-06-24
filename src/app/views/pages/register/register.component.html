@@ -1,0 +1,100 @@
+<div class="container mt-3">
+  <button type="button" class=" btn btn-primary " data-bs-toggle="modal" (click)="onAdd()"
+    data-bs-target="#createNewModal">Crear</button>
+
+  <input type="text" [formControl]="filterControl" class="form-control mb-3" placeholder="Filter">
+
+  <table id="myTable" class="table table-bordered">
+    <thead>
+      <tr>
+        <th scope="col">Id</th>
+        <th scope="col">Nombre</th>
+        <th scope="col">Correo</th>
+        <th scope="col">Tipo</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let client of userList let i = index ">
+        <th>{{ client.id }}</th>
+        <td>{{ client.name }}</td>
+        <td>{{ client.email }}</td>
+        <td>{{ client.type }}</td>
+        <td>
+          <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#createNewModal"
+            (click)="onEdit(client,i)">✏️</button>
+          <button class="btn btn-danger btn-sm" (click)="deleteElement(i)">🗑️</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="createNewModal" tabindex="-1" role="dialog" aria-labelledby="createNewModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="createNewModalLabel"> Crear usuario</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form [formGroup]="userForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <input type="hidden" id="id" class="form-control" formControlName="id">
+          </div>
+          <!-- Formulario para nuevo elemento -->
+
+
+          <div class="input-group mb-3">
+            <span cInputGroupText>
+              <svg cIcon name="cilUser"></svg>
+            </span>
+            <input type="text" class="form-control" id="nombre" formControlName="name" placeholder="Nombre de Usuario"
+              aria-label="Username" aria-describedby="basic-addon1">
+          </div>
+
+          <div class="input-group mb-3">
+            <span cInputGroupText>
+              @
+            </span>
+            <input type="text" class="form-control" id="correo" formControlName="email" placeholder="Correo"
+              aria-label="Username" aria-describedby="basic-addon1">
+          </div>
+
+
+          <div class="input-group mb-3">
+            <span cInputGroupText>
+              <svg cIcon name="cilLockLocked"></svg>
+            </span>
+            <input type="text" class="form-control" id="contraseña" formControlName="password" placeholder="Contraseña"
+              aria-label="Username" aria-describedby="basic-addon1">
+          </div>
+
+          <div class="form-group">
+            <label for="type">Seleccionar rol</label>
+            <select formControlName="type" id="type" class="form-control">
+              <option value="seleccionar">--seleccionar--</option>
+              <option value="ADMIN">ADMIN</option>
+              <option value="CALLCENTER">CALLCENTER</option>
+              <option value="TECNICO">TECNICO</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <div *ngIf="IsCreate">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" (click)="createNew()">Guardar</button>
+          </div>
+          <div *ngIf="IsEdit">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+              (click)="updateUser()">Actualizar</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

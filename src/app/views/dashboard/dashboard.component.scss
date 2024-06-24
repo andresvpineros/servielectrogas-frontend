@@ -1,0 +1,27 @@
+:host {
+  .legend {
+    small {
+      font-size: x-small;
+    }
+  }
+
+  .content-header {
+    position: relative;
+    padding: 15px 15px 0 15px;
+  }
+
+  .form-control {
+    width: auto;
+    margin-bottom: 1%;
+  }
+
+  .modal {
+    padding-left: 20px;
+    /* Adjust the value as needed */
+    /* Add other styling for your modal */
+    background-color: var(--cui-body-color, #fff);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* Add any other styles you need for your modal */
+  }
+}

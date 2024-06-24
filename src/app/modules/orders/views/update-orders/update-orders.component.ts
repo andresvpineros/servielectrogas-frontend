@@ -1,0 +1,432 @@
+import { Component, ViewChild, ElementRef } from '@angular/core';
+import { OrdersApiService } from '../../services/orders-api.service';
+import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { Order } from '../../models/Order';
+import { Client } from '../../models/Client';
+import { User } from 'src/app/modules/login/models/User';
+import { Service } from '../../models/Service';
+import { OrderService } from '../../models/OrderService';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute } from '@angular/router';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+
+@Component({
+  templateUrl: 'update-orders.component.html',
+  styleUrls: ['update-orders.component.scss'],
+})
+export class UpdateOrdersComponent {
+  @ViewChild('fileInput') fileInput!: ElementRef;
+  totalRecords: number = 0;
+  errorMessage: string = '';
+  dataForm: FormGroup;
+  filteredClients: Client[] = [];
+  filteredUsers: User[] = [];
+  filteredServices: Service[] = [];
+  aditionalCharges: number = 0;
+  visible = false;
+  selectedFile: File | string = '';
+  existingFile: {
+    id: number;
+    filename: string;
+    fileType: string;
+    data: any;
+  } | null = null;
+  id: number | null = null;
+  orderServiceId: number | null = null;
+  fileUrl: SafeUrl | null = null;
+  idModal: string | null = null;
+  private previousLength: number = 0;
+
+  constructor(
+    private fb: FormBuilder,
+    private snackBar: MatSnackBar,
+    private ordersService: OrdersApiService,
+    private route: ActivatedRoute,
+    private sanitizer: DomSanitizer
+  ) {
+    this.dataForm = this.fb.group({
+      observations: ['', [Validators.required]],
+      status: ['', [Validators.required]],
+      clientId: ['', [Validators.required]],
+      orderServices: this.fb.array([] as FormGroup[]),
+      technicianId: ['', [Validators.required]],
+      scheduleDate: ['', [Validators.required]],
+      scheduleTime: ['', [Validators.required]],
+      totalCharged: [{ value: 0, disabled: true }],
+      aditionalCharged: [0],
+    });
+  }
+
+  ngOnInit() {
+    this.orderServices.valueChanges.subscribe(() => {
+      if (this.orderServices.value.length === 0) {
+        this.dataForm.get('aditionalCharged')?.setValue(0);
+      }
+      this.updateTotalCharged();
+    });
+
+    this.searchClients('');
+    this.searchUsers('');
+    this.searchServices('');
+    this.route.paramMap.subscribe((params) => {
+      this.id = +params.get('id')!;
+      this.getOrder(this.id);
+    });
+  }
+
+  toggleEvidencesModal(orderServiceId: number, i: number) {
+    this.resetFileInput();
+    this.visible = !this.visible;
+    this.idModal = (i + 1).toString();
+    this.getEvidenceById(orderServiceId);
+  }
+
+  getEvidenceById(orderServiceId: number | null) {
+    if (orderServiceId) {
+      this.orderServiceId = orderServiceId;
+      this.ordersService
+        .getEvidenceByOrderServiceId(orderServiceId)
+        .subscribe((response) => {
+          if (response.code === 200) {
+            this.existingFile = response.data;
+            this.fileUrl = this.sanitizer.bypassSecurityTrustUrl(
+              URL.createObjectURL(
+                new Blob([this.base64ToArrayBuffer(response.data.data)], {
+                  type: response.data.fileType,
+                })
+              )
+            );
+          } else {
+            this.resetFileInput();
+          }
+        });
+    }
+  }
+
+  uploadFile() {
+    if (this.selectedFile) {
+      this.ordersService
+        .uploadEvidence(this.selectedFile, this.orderServiceId)
+        .subscribe((response) => {
+          if (response.code === 200) {
+            this.showSnackbar(response.message, true);
+            this.fileInput.nativeElement.value = '';
+            this.selectedFile = '';
+            this.getEvidenceById(this.orderServiceId);
+          }
+        });
+    }
+  }
+
+  downloadFile() {
+    if (this.existingFile) {
+      const binary = atob(this.existingFile.data);
+      const len = binary.length;
+      const buffer = new ArrayBuffer(len);
+      const view = new Uint8Array(buffer);
+
+      for (let i = 0; i < len; i++) {
+        view[i] = binary.charCodeAt(i);
+      }
+
+      const blob = new Blob([view], { type: this.existingFile.fileType });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = this.existingFile.filename;
+      link.click();
+      window.URL.revokeObjectURL(url);
+    }
+  }
+
+  base64ToArrayBuffer(base64: string): ArrayBuffer {
+    const binaryString = window.atob(base64);
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+
+    return bytes.buffer;
+  }
+
+  closeEvidencesModal() {
+    this.visible = !this.visible;
+    this.resetFileInput();
+  }
+
+  handleLiveDemoChange(event: any) {
+    this.visible = event;
+  }
+
+  resetFileInput() {
+    this.orderServiceId = null;
+    this.idModal = null;
+    if (this.fileInput && this.fileInput.nativeElement) {
+      this.fileInput.nativeElement.value = '';
+      this.selectedFile = '';
+      this.existingFile = null;
+      this.fileUrl = null;
+
+      // Crear un nuevo input y reemplazar el antiguo
+      const newFileInput = this.fileInput.nativeElement.cloneNode(true);
+      this.fileInput.nativeElement.parentNode.replaceChild(
+        newFileInput,
+        this.fileInput.nativeElement
+      );
+      this.fileInput.nativeElement = newFileInput;
+    }
+  }
+
+  onSubmit(): void {
+    if (this.dataForm.valid) {
+      this.dataForm.get('totalCharged')?.enable();
+
+      const order: Order = this.dataForm.value;
+
+      order.orderServices.forEach((orderService: any) => {
+        orderService.orderServiceDate = this.transformDateForBackend(
+          orderService.orderServiceDate
+        );
+        orderService.duration = this.transformDurationToBackend(
+          orderService.duration
+        );
+      });
+
+      this.ordersService.updateOrder(this.id || null, order).subscribe(
+        (response) => {
+          this.showSnackbar('Orden actualizada exitosamente', true);
+          this.orderServices.setValue([]);
+          this.getOrder(this.id || null);
+        },
+        (error) => {
+          this.showSnackbar('Error al guardar la orden', false);
+        }
+      );
+    } else {
+      this.markFieldsAsTouched(this.dataForm);
+    }
+  }
+
+  // Service requests
+
+  getOrder(id: number | null) {
+    const response = this.ordersService.getOrderById(id || null);
+
+    response.subscribe({
+      next: (value: any) => {
+        const { data } = value;
+
+        data.orderServices.map((service: OrderService) =>
+          this.orderServices.push(this.initOrderServiceFormGroup(service))
+        );
+
+        this.dataForm.patchValue({
+          observations: data.observations,
+          status: data.status,
+          clientId: data.clientId,
+          technicianId: data.technicianId,
+          scheduleDate: this.formatDateToInput(data.scheduleDate),
+          scheduleTime: data.scheduleTime,
+          totalCharged: data.totalCharged,
+          aditionalCharged: data.aditionalCharged,
+        });
+      },
+      error: (err) => {
+        console.log(err);
+        this.errorMessage =
+          'Ha ocurrido un problema al intentar traer los registros de la tabla. Por favor contacte un administrador de inmediato.';
+      },
+    });
+  }
+
+  initOrderServiceFormGroup(service: OrderService): FormGroup {
+    return this.fb.group({
+      id: [service.id],
+      ordersId: [service.ordersId],
+      service: [service.service],
+      serviceId: [service.serviceId],
+      observations: [service.observations, Validators.required],
+      orderServiceDate: [
+        this.formatDateToInput(service.orderServiceDate),
+        Validators.required,
+      ],
+      duration: [
+        this.convertDurationToTime(service.duration),
+        Validators.required,
+      ],
+      price: [service.service.price],
+      priorityName: [service.priorityName],
+      priority: [service.priority, Validators.required],
+      statusName: [service.statusName],
+      status: [service.status, Validators.required],
+      createdAt: [service.createdAt],
+      technicianName: [service.technicianName],
+      technicianId: [service.technicianId, Validators.required],
+      alreadyCreated: true,
+    });
+  }
+
+  onClientChange(event: any): void {
+    const selectedClientId = event ? event.id : null;
+    this.dataForm.get('clientId')?.setValue(selectedClientId);
+  }
+
+  searchClients(query: any): void {
+    this.ordersService.searchClients(query).subscribe((clients) => {
+      this.filteredClients = clients.map((client) => ({
+        ...client,
+        displayLabel: `${client.names} | CC. ${client.document} - Tel. ${client.phone}`,
+      }));
+    });
+  }
+
+  searchUsers(name: any): void {
+    this.ordersService.searchUsers(name).subscribe((users) => {
+      this.filteredUsers = users;
+      this.filteredUsers = users.map((user) => ({
+        ...user,
+        displayLabel: `${user.name} | ${user.email}`,
+      }));
+    });
+  }
+
+  searchServices(description: any): void {
+    this.ordersService.searchServices(description).subscribe((services) => {
+      this.filteredServices = services.map((service) => ({
+        ...service,
+        displayLabel: `${
+          service.servicesDescription
+        } | ${service.price.toLocaleString('es-CO', {
+          style: 'currency',
+          currency: 'COP',
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        })}`,
+      }));
+      console.log('filtered services', this.filteredServices);
+    });
+  }
+
+  // onChange
+
+  onFileSelected(event: any): void {
+    this.selectedFile = event.target.files[0];
+  }
+
+  onServiceChange(index: number, selectedService: any): void {
+    const price = selectedService.price;
+    this.orderServices.at(index).get('price')?.setValue(price);
+    this.updateTotalCharged();
+  }
+
+  updateTotalCharged(): void {
+    const orderServices = this.dataForm.get('orderServices')?.value;
+    const totalServicesCharged = orderServices.reduce(
+      (total: any, service: any) => {
+        return total + (service.price || 0);
+      },
+      0
+    );
+
+    const totalCharged =
+      totalServicesCharged + this.dataForm.get('aditionalCharged')?.value;
+    this.dataForm.get('totalCharged')?.setValue(totalCharged);
+  }
+
+  get orderServices(): FormArray {
+    return this.dataForm.controls['orderServices'] as FormArray;
+  }
+
+  createOrderService(): FormGroup {
+    return this.fb.group({
+      serviceId: ['', [Validators.required]],
+      observations: ['', [Validators.required]],
+      priority: ['', [Validators.required]],
+      status: ['', [Validators.required]],
+      duration: ['', [Validators.required]],
+      orderServiceDate: ['', [Validators.required]],
+      price: [{ value: 0, disabled: false }, [Validators.required]],
+      alreadyCreated: false,
+    });
+  }
+
+  addOrderService(): void {
+    this.orderServices.push(this.createOrderService());
+  }
+
+  removeOrderService(index: number): void {
+    this.orderServices.removeAt(index);
+  }
+
+  // Utils
+
+  markFieldsAsTouched(formGroup: FormGroup | FormArray): void {
+    if (formGroup instanceof FormGroup || formGroup instanceof FormArray) {
+      Object.values(formGroup.controls).forEach((control) => {
+        if (control instanceof FormGroup || control instanceof FormArray) {
+          this.markFieldsAsTouched(control);
+        } else {
+          control.markAsTouched();
+        }
+      });
+    }
+  }
+
+  transformDateForBackend(date: string): string {
+    const isoString = new Date(date).toISOString();
+    return isoString.replace('Z', '');
+  }
+
+  transformDurationToBackend(time: string): string {
+    if (!time || time.length !== 4) {
+      console.error('Invalid time format. Expected HHmm format.');
+      return '';
+    }
+
+    const hours = parseInt(time.substring(0, 2), 10);
+    const minutes = parseInt(time.substring(2), 10);
+
+    if (isNaN(hours) || isNaN(minutes)) {
+      console.error('Invalid time. Hours or minutes are not numbers.');
+      return '';
+    }
+
+    const totalSeconds = (hours * 60 + minutes) * 60;
+    return `PT${totalSeconds}S`;
+  }
+
+  showSnackbar(message: string, isSuccess: boolean): void {
+    const snackbarClass = isSuccess ? 'green-snackbar' : 'red-snackbar';
+
+    this.snackBar.open(message, 'Cerrar', {
+      duration: 3000,
+      panelClass: [snackbarClass],
+    });
+  }
+
+  formatDateToInput(value: string): string {
+    const date = new Date(value);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+  }
+
+  convertDurationToTime(value: string): string {
+    const matches = value.match(/PT(\d+H)?(\d+M)?/);
+
+    const hours =
+      matches && matches[1]
+        ? matches[1].replace('H', '').padStart(2, '0')
+        : '00';
+    const minutes =
+      matches && matches[2]
+        ? matches[2].replace('M', '').padStart(2, '0')
+        : '00';
+
+    return `${hours}:${minutes}`;
+  }
+}

@@ -1,0 +1,267 @@
+<div>
+  <div class="container">
+
+    <c-accordion [alwaysOpen]="true">
+      <form [formGroup]="OrderForm">
+        <!-- Accordion Item 1: Cliente -->
+        <c-accordion-item #item0="cAccordionItem" [visible]="false">
+          <ng-template cTemplateId="accordionHeaderTemplate">
+            <button (click)="item0.toggleItem()" [collapsed]="!item0.visible" cAccordionButton
+              class="btn btn-outline-primary">
+              Detalles del Cliente
+            </button>
+          </ng-template>
+
+          <ng-template cTemplateId="accordionBodyTemplate">
+            <!-- Button trigger modal -->
+
+            <div class="accordion-body">
+              <div class="row align-items-start">
+                <!-- Column 1 -->
+
+                <div class="col-md">
+                  <label for="otroCampo">Telefono</label>
+                  <div class="input-group">
+                    <input type="search" formControlName="telefono" placeholder="Buscar por Telefono"
+                      class="form-control" />
+                    <button type="submit" mat-icon-button type="button" (click)="FindClient()" class="btn btn-light">
+                      <mat-icon>search</mat-icon>
+                    </button>
+                  </div>
+                </div>
+
+
+                <!-- Column 2 -->
+
+                <div class="col-md">
+                  <label for="Nombres">Nombres</label>
+                  <input formControlName="nombres" id="Nombres" class="form-control" />
+                </div>
+                <!-- Column 3 -->
+                <div class="col-md">
+                  <label for="documento">Documento</label>
+                  <input formControlName="documento" id="documento" class="form-control" />
+                </div>
+              </div>
+
+              <div class="row align-items-center">
+                <!-- Column 4 -->
+                <div class="col-md">
+                  <label for="direccion">Direccion</label>
+                  <input formControlName="direccion" id="direccion" class="form-control" />
+                </div>
+                <div class="col-md">
+                  <label for="correo">Correo</label>
+                  <input formControlName="correo" id="correo" class="form-control" />
+                </div>
+
+                <!-- Column 5 -->
+                <div class="col-md">
+                  <label for="telefono1">Telefono 1</label>
+                  <input formControlName="telefono1" id="telefono1" class="form-control" />
+                </div>
+              </div>
+
+              <div class="row align-items-end">
+                <!-- Column 7 -->
+                <div class="col-md">
+                  <label for="telefono2">Telefono 2</label>
+                  <input formControlName="telefono2" id="telefono2" class="form-control" />
+                </div>
+
+                <!-- Column 8 -->
+                <div class="col-md">
+                  <label for="solicitante">Nombre Solicitante</label>
+                  <input formControlName="solicitante" id="solicitante" class="form-control" />
+                </div>
+
+                <!-- Column 9 -->
+                <div class="col-md">
+                  <label for="idOrdenProveedor">Id orden proveedor</label>
+                  <input formControlName="idOrdenProveedor" id="idOrdenProveedor" class="form-control" />
+                </div>
+              </div>
+              <div class="col-md-2">
+                <label for="Tipo">Tipo Cliente</label>
+                <select formControlName="type" id="type" class="form-control">
+                  <option value="" disabled selected hidden>--Seleccionar--</option>
+                  <option value="DIRECTO">DIRECTO</option>
+                  <option value="PROVEEDOR">PROVEEDOR</option>
+                </select>
+              </div>
+            </div>
+          </ng-template>
+        </c-accordion-item>
+      </form>
+
+      <form [formGroup]="ServiceForm">
+        <c-accordion-item #item2="cAccordionItem" [visible]="false">
+          <ng-template cTemplateId="accordionHeaderTemplate">
+            <button (click)="item2.toggleItem()" [collapsed]="!item2.visible" cAccordionButton
+              class="btn btn-outline-primary">
+              Descripcion del Servicio
+            </button>
+          </ng-template>
+          <ng-template cTemplateId="accordionBodyTemplate">
+            <div class="accordion-body">
+
+              <div class="row">
+                <div class="col-md-4">
+                  <label for="numOrden">Numero de Orden: </label>
+                  <input formControlName="NumeroOrden" id="NumeroOrden" class="form-control" placeholder="#" />
+                </div>
+                <div class="col-md-4">
+                  <label for="estado">Estado Orden:</label>
+                  <select formControlName="estado" class="form-control form-control-ms" id="estado" required>
+                    <option value="PENDIENTE">Pendiente</option>
+                    <option value="PROGRESO">Progreso</option>
+                    <option value="COMPLETADA">Completada</option>
+                    <option value="CANCELADA">Cancelada</option>
+                  </select>
+                </div>
+                <c-col xs="12"><br>
+
+                  <table [bordered]="true" cTable>
+                    <thead>
+                      <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Tipo de Servicio</th>
+                        <th scope="col">Descripcion de Servicio</th>
+                        <th scope="col" type="Currency">Precio Unitario </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th scope="row">1</th>
+                        <td>
+                          <select formControlName="typeservice1" class="form-control">
+                            <option value="Seleccione">--Seleccione un Servicio--</option>
+                            <option value="INSTALACION">Instalación</option>
+                            <option value="MANTENIMIENTO">Mantenimiento</option>
+                            <option value="REPARACION">Reparación</option>
+                          </select>
+                        </td>
+                        <td><input formControlName="serviced1" class="form-control" /></td>
+                        <td><input formControlName="servicet1" class="form-control" placeholder="$" /></td>
+                      </tr>
+                      <tr>
+                        <th scope="row">2</th>
+                        <td>
+                          <select formControlName="typeservice2" class="form-control">
+                            <option value="Seleccione">--Seleccione un Servicio--</option>
+                            <option value="INSTALACION">Instalación</option>
+                            <option value="MANTENIMIENTO">Mantenimiento</option>
+                            <option value="REPARACION">Reparación</option>
+                          </select>
+                        </td>
+                        <td><input formControlName="serviced2" class="form-control" /></td>
+                        <td><input formControlName="servicet2" class="form-control" placeholder="$" /></td>
+                      </tr>
+                      <tr>
+                        <th scope="row">3</th>
+                        <td>
+                          <select required="true" formControlName="typeservice3" class="form-control">
+                            <option value="Seleccione">--Seleccione un Servicio--</option>
+                            <option value="INSTALACION">Instalación</option>
+                            <option value="MANTENIMIENTO">Mantenimiento</option>
+                            <option value="REPARACION">Reparación</option>
+                          </select>
+                        </td>
+                        <td><input formControlName="serviced3" class="form-control" />
+                        </td>
+                        <td><input formControlName="servicet3" class="form-control" placeholder="$" />
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </c-col>
+                <div class="form-group">
+                  <label for="observations">Observaciones: </label>
+                  <textarea style="width: 100%;" formControlName="observations" id="observations" class="form-control"
+                    name="comentarios">Escribe aquí tus comentarios</textarea>
+                </div>
+              </div>
+            </div>
+          </ng-template>
+        </c-accordion-item>
+      </form>
+      <form [formGroup]="AgendaForm">
+        <c-accordion-item #item1="cAccordionItem" [visible]="false">
+          <ng-template cTemplateId="accordionHeaderTemplate">
+            <button (click)="item1.toggleItem()" [collapsed]="!item1.visible" cAccordionButton
+              class="btn btn-outline-primary">
+              Agendamiento
+            </button>
+          </ng-template>
+          <ng-template cTemplateId="accordionBodyTemplate">
+
+            <div class="accordion-body">
+              <p class="text-medium-emphasis">Crear Agenda</p>
+
+              <div class="row">
+                <!-- Column 1 -->
+                <div class="col-md">
+                  <label for="otroCampo">Tecnico</label>
+                  <div class="input-group">
+                    <input type="hidden" formControlName="idtecnico" name="idtecnico">
+                    <input type="search" formControlName="tecnico" id="Tecnico" placeholder="Buscar Tecnico"
+                      class="form-control" />
+                    <button (click)="GetTecnico()" mat-icon-button type="button" class="btn btn-light">
+                      <mat-icon>search</mat-icon>
+                    </button>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="fecha">Fecha:</label>
+                  <input type="date" formControlName="fecha" class="form-control" id="fecha" required>
+                  <div *ngIf="AgendaForm.get('fecha').invalid && AgendaForm.get('fecha').touched" class="error-message">
+                    Please enter a valid date.
+                  </div>
+                </div>
+                <div class="col">
+                  <label for="hora">Hora:</label>
+                  <select formControlName="hora" class="form-control" required>
+                    <option value="" disabled selected hidden>--Seleccionar hora--</option>
+                    <option value="01:00-02:00 AM">01:00 AM - 02:00 AM</option>
+                    <option value="02:00-03:00 AM">02:00 AM - 03:00 AM</option>
+                    <option value="03:00-04:00 AM">03:00 AM - 04:00 AM</option>
+                    <option value="04:00-05:00 AM">04:00 AM - 05:00 AM</option>
+                    <option value="05:00-06:00 AM">05:00 AM - 06:00 AM</option>
+                    <option value="06:00-07:00 AM">06:00 AM - 07:00 AM</option>
+                    <option value="07:00-08:00 AM">07:00 AM - 08:00 AM</option>
+                    <option value="08:00-09:00 AM">08:00 AM - 09:00 AM</option>
+                    <option value="09:00-10:00 AM">09:00 AM - 10:00 AM</option>
+                    <option value="10:00-11:00 AM">10:00 AM - 11:00 AM</option>
+                    <option value="11:00-12:00 AM">11:00 AM - 12:00 PM</option>
+                    <option value="12:00-01:00 PM">12:00 PM - 01:00 PM</option>
+                    <option value="01:00-02:00 PM">01:00 PM - 02:00 PM</option>
+                    <option value="02:00-03:00 PM">02:00 PM - 03:00 PM</option>
+                    <option value="03:00-04:00 PM">03:00 PM - 04:00 PM</option>
+                    <option value="04:00-05:00 PM">04:00 PM - 05:00 PM</option>
+                    <option value="05:00-06:00 PM">05:00 PM - 06:00 PM</option>
+                    <option value="06:00-07:00 PM">06:00 PM - 07:00 PM</option>
+                    <option value="07:00-08:00 PM">07:00 PM - 08:00 PM</option>
+                    <option value="08:00-09:00 PM">08:00 PM - 09:00 PM</option>
+                    <option value="09:00-10:00 PM">09:00 PM - 10:00 PM</option>
+                    <option value="10:00-11:00 PM">10:00 PM - 11:00 PM</option>
+                    <option value="11:00-12:00 PM">11:00 PM - 12:00 AM</option>
+                  </select>
+                </div>
+                <div class="row">
+                  <!-- button 2 -->
+                  <div class="col-md-4 p-2">
+                    <button cButton class="btn btn-primary" (click)="onSubmit()" type="submit"
+                      style="margin-right: auto;">
+                      Crear Orden
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-template>
+        </c-accordion-item>
+      </form>
+    </c-accordion>
+
+  </div>
+</div>

@@ -1,0 +1,79 @@
+.table-options {
+  display: flex;
+  justify-content: space-between;
+}
+
+.actions-container {
+  text-align: center;
+
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  gap: 10px;
+}
+
+.button-item {
+  cursor: pointer;
+}
+
+.options-top-container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.number-service-activities {
+  color: rgb(117, 117, 117);
+}
+
+.input-search {
+  width: 350px;
+}
+
+.search-button {
+  background-color: white;
+}
+
+.no-data-found-container {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 50px;
+}
+
+.error-container {
+  padding: 25px 20px 10px 20px;
+  justify-content: center;
+}
+
+.cursor-pointer{
+  cursor: pointer;
+}
+
+.options-filter-menu {
+  display: flex;
+  padding: 0px 6px;
+  margin-top: 10px;
+}
+
+.options-filter-menu h5{
+  margin-left: 18px;
+}
+
+.action-filter-container {
+  display: flex;
+  gap: 10px;
+}
+
+.success-snackbar {
+  background-color: green;
+  color: white;
+}
+
+.error-snackbar {
+  background-color: red;
+  color: white;
+}

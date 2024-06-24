@@ -1,0 +1,299 @@
+<div class="container mt-3">
+  <div class="options-top-container">
+    <div class="action-buttons">
+      <button
+        type="button"
+        class="btn btn-primary text-light"
+        routerLink="agregar"
+        routerLinkActive="active"
+      >
+        Agregar
+        <svg cIcon name="cil-plus" size="xs"></svg>
+      </button>
+      <button
+        type="button"
+        class="btn btn-info text-light"
+        (click)="triggerFileInput()"
+      >
+        Importar
+        <svg cIcon name="cil-arrow-thick-from-bottom" size="xs"></svg>
+      </button>
+      <input
+        #fileInput
+        type="file"
+        (change)="importOrders($event)"
+        accept=".xlsx"
+        style="display: none"
+      />
+      <c-dropdown [autoClose]="'outside'" alignment="end">
+        <button
+          cButton
+          cDropdownToggle
+          type="button"
+          class="btn btn-info text-light"
+        >
+          Exportar
+          <svg cIcon name="cil-arrow-thick-from-top" size="xs"></svg>
+        </button>
+        <div cDropdownMenu [ngStyle]="{ 'min-width.px': 300 }">
+          <div class="options-filter-menu">
+            <h5>Filtros de exportación</h5>
+            <button
+              cButtonClose
+              cDropdownClose
+              class="d-flex ms-auto me-1"
+              [tabIndex]="0"
+            ></button>
+          </div>
+          <hr cDropdownDivider />
+          <form cForm class="px-4 py-0" [formGroup]="exportFilters">
+            <div class="mb-3">
+              <label cLabel for="basic-url" class="form-label">Estado</label>
+              <div class="input-group">
+                <select
+                  cFormControl
+                  required
+                  id="selectedStatus"
+                  class="form-select"
+                  formControlName="selectedStatus"
+                >
+                  <option value="" selected>Filtra por estado</option>
+                  <option value="0">PENDIENTE</option>
+                  <option value="1">PROGRESO</option>
+                  <option value="2">COMPLETADA</option>
+                  <option value="3">CANCELADA</option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label cLabel for="startDate">Fecha de creación (Inicio)</label>
+              <input
+                cFormControl
+                id="startDate"
+                formControlName="startDate"
+                type="date"
+              />
+            </div>
+            <div class="mb-3">
+              <label cLabel for="endDate">Fecha de creación (Fin)</label>
+              <input
+                cFormControl
+                id="endDate"
+                formControlName="endDate"
+                type="date"
+              />
+            </div>
+            <div class="action-filter-container">
+              <button
+                cButton
+                color="primary"
+                cDropdownClose
+                class="mb-2"
+                (click)="exportToExcel()"
+              >
+                Exportar
+              </button>
+            </div>
+          </form>
+        </div>
+      </c-dropdown>
+    </div>
+    <div class="action-buttons">
+      <div class="input-search">
+        <c-input-group>
+          <input
+            type="text"
+            cFormControl
+            [(ngModel)]="search"
+            placeholder="Buscar..."
+          />
+          <button
+            cButton
+            color="secondary"
+            type="button"
+            class="search-button"
+            (click)="searchOrders()"
+          >
+            <svg cIcon name="cil-search" size="xs"></svg>
+          </button>
+        </c-input-group>
+      </div>
+      <c-dropdown [autoClose]="'outside'" alignment="end">
+        <button
+          cButton
+          cDropdownToggle
+          type="button"
+          class="btn btn-primary text-light"
+        >
+          <svg cIcon name="cil-filter" size="xs"></svg>
+        </button>
+        <div cDropdownMenu [ngStyle]="{ 'min-width.px': 300 }">
+          <div class="options-filter-menu">
+            <h5>Filtros</h5>
+            <button
+              cButtonClose
+              cDropdownClose
+              class="d-flex ms-auto me-1"
+              [tabIndex]="0"
+            ></button>
+          </div>
+          <hr cDropdownDivider />
+          <form cForm class="px-4 py-0" [formGroup]="filters">
+            <div class="mb-3">
+              <label cLabel for="basic-url" class="form-label">Estado</label>
+              <div class="input-group">
+                <select
+                  cFormControl
+                  required
+                  id="selectedStatus"
+                  class="form-select"
+                  formControlName="selectedStatus"
+                >
+                  <option value="" selected>Filtra por estado</option>
+                  <option value="0">PENDIENTE</option>
+                  <option value="1">PROGRESO</option>
+                  <option value="2">COMPLETADA</option>
+                  <option value="3">CANCELADA</option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label cLabel for="startDate">Fecha de creación (Inicio)</label>
+              <input
+                cFormControl
+                id="startDate"
+                formControlName="startDate"
+                type="date"
+              />
+            </div>
+            <div class="mb-3">
+              <label cLabel for="endDate">Fecha de creación (Fin)</label>
+              <input
+                cFormControl
+                id="endDate"
+                formControlName="endDate"
+                type="date"
+              />
+            </div>
+            <div class="action-filter-container">
+              <button
+                cButton
+                color="primary"
+                cDropdownClose
+                class="mb-2"
+                (click)="applyFilters()"
+              >
+                Aplicar Filtros
+              </button>
+              <button
+                cButton
+                color="secondary"
+                cDropdownClose
+                class="mb-2 text-white"
+                (click)="clearFilters()"
+              >
+                Limpiar
+              </button>
+            </div>
+          </form>
+        </div>
+      </c-dropdown>
+    </div>
+  </div>
+  <c-card class="border border-light">
+    <c-card-body *ngIf="orders.length > 0">
+      <table bordered cTable>
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Cliente/Identificación</th>
+            <th scope="col">Observaciones</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Cobro Total</th>
+            <th scope="col">Fecha de Creación</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of orders">
+            <th scope="row">{{ item.id }}</th>
+            <td>
+              {{ item.clientNames }} -
+              {{ item.clientDocument || item.clientPhone }}
+            </td>
+            <td>{{ item.observations }}</td>
+            <td>{{ item.statusName }}</td>
+            <td>{{ item.totalCharged }}</td>
+            <td>{{ item.createdAt }}</td>
+            <td class="actions-container">
+              <div class="action-buttons">
+                <div
+                  class="button-item"
+                  routerLink="editar/{{ item.id }}"
+                  routerLinkActive="active"
+                  data-toggle="tooltip"
+                  data-placement="bottom"
+                  title="Editar"
+                >
+                  <svg cIcon name="cilPencil" size="lg" class="text-info"></svg>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="table-options">
+        <span class="number-service-activities"
+          >{{ totalRecords }} órdenes de trabajo</span
+        >
+        <nav aria-label="Table pagination">
+          <ul class="pagination">
+            <li
+              [ngClass]="{
+                'cursor-pointer': currentPage != 0
+              }"
+              class="page-item"
+              [class.disabled]="currentPage === 0"
+            >
+              <a class="page-link" (click)="changePage(currentPage - 1)"
+                >Anterior</a
+              >
+            </li>
+            <li
+              *ngFor="let page of [].constructor(totalPages); let i = index"
+              class="page-item cursor-pointer"
+              [class.active]="i === currentPage"
+            >
+              <a class="page-link" (click)="changePage(i)">{{ i + 1 }}</a>
+            </li>
+            <li
+              class="page-item"
+              [ngClass]="{
+                'cursor-pointer': currentPage !== totalPages - 1
+              }"
+              [class.disabled]="currentPage + 1 >= totalPages"
+            >
+              <a class="page-link" (click)="changePage(currentPage + 1)"
+                >Siguiente</a
+              >
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </c-card-body>
+    <c-card-body *ngIf="orders.length === 0 && errorMessage === ''">
+      <div class="no-data-found-container">
+        <svg cIcon name="cilFindInPage" size="4xl"></svg>
+        <h2>No hay registros</h2>
+        <p>
+          Para añadir nuevas órdenes de trabajo, click en
+          <span class="text-primary">Agregar</span> o
+          <span class="text-info">Importar</span>
+        </p>
+      </div>
+    </c-card-body>
+    <c-card-body *ngIf="errorMessage != ''" class="error-container">
+      <c-alert color="danger">{{ errorMessage }}</c-alert>
+    </c-card-body>
+  </c-card>
+</div>

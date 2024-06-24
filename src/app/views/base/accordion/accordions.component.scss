@@ -1,0 +1,16 @@
+:host ::ng-deep .accordion-custom {
+  .accordion-button {
+    background-color: var(--cui-dark);
+    color: var(--cui-white);
+  }
+
+  .content-header {
+    position: relative;
+    padding: 15px 15px 0 15px;
+  }
+
+  .form-control {
+    width: auto;
+    margin-bottom: 1%;
+  }
+}

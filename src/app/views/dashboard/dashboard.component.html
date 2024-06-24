@@ -1,0 +1,185 @@
+<app-widgets-dropdown></app-widgets-dropdown>
+<div class="container mt-3">
+  <h1 class="h3">Listado de Ordenes de Servicio</h1>
+  <div class="row mb-3">
+    <div class="col-md-12">
+      <label for="filter" class="form-label">Filtrar</label>
+      <input class="form-control"  placeholder="Buscar" #input>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead class="thead-light">
+        <tr>
+          <th>Id Orden</th>
+          <th>Cliente</th>
+          <th>Observaciones</th>
+          <th>Estado</th>
+          <th>Total</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of dataSource.data; let i = index  ">
+          <td>{{ row.id }}</td>
+          <td>{{ row.infoClient }}</td>
+          <td [innerHTML]="row.observations">
+          </td>
+          <td>{{ row.status }}</td>
+          <td>{{ row.totalCharged }}</td>
+          <td>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createNewModal"
+              (click)="onEdit(row,i)">✏️</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="d-flex justify-content-end">
+    <nav aria-label="Page navigation">
+      <ul class="pagination">
+        <li class="page-item" *ngFor="let page of [1, 2, 3, 4, 5]">
+          <a class="page-link" href="#">{{ page }}</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+  <div class="modal fade" id="createNewModal" tabindex="-1" role="dialog" aria-labelledby="autoSizeModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <!-- Your modal content goes here -->
+        <div class="modal-header">
+          <h5 class="modal-title" id="autoSizeModalLabel">Actualizar Orden</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body card">
+
+          <form [formGroup]="ServiceForm">
+            <div class="row" style="border-bottom: 2px solid gray; margin-bottom: 15px; padding-bottom: 15px;">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="numOrden" style="font-weight:bolder; font-size: 14px;">Número de Orden:</label>
+                  <input formControlName="NumeroOrden" id="NumeroOrden" class="form-control" />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="status" style="font-weight:bolder; font-size: 14px;">Estado de la Orden:</label>
+                  <select formControlName="status" class="form-control" id="status" required>
+                    <option value="Seleccione">--Seleccione un Estado--</option>
+                    <option value="PENDIENTE">Pendiente</option>
+                    <option value="PROGRESO">Progreso</option>
+                    <option value="COMPLETADA">Completada</option>
+                    <option value="CANCELADA">Cancelada</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="typeservice1" style="font-weight:bolder; font-size: 14px;">Tipo de Servicio 1:</label>
+                  <select formControlName="typeservice1" class="form-control">
+                    <option value="Seleccione">--Seleccione un Servicio--</option>
+                    <option value="INSTALACION">Instalación</option>
+                    <option value="MANTENIMIENTO">Mantenimiento</option>
+                    <option value="REPARACION">Reparación</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="serviced1" style="font-weight:bolder; font-size: 14px;">Descripción de Servicio 1:</label>
+                  <input formControlName="serviced1" class="form-control" />
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="servicet1" style="font-weight:bolder; font-size: 14px;">Precio Unitario 1:</label>
+                  <input formControlName="servicet1" class="form-control" />
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="typeservice2" style="font-weight:bolder; font-size: 14px;">Tipo de Servicio 2:</label>
+                  <select formControlName="typeservice2" class="form-control">
+                    <option value="Seleccione">--Seleccione un Servicio--</option>
+                    <option value="INSTALACION">Instalación</option>
+                    <option value="MANTENIMIENTO">Mantenimiento</option>
+                    <option value="REPARACION">Reparación</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="serviced2" style="font-weight:bolder; font-size: 14px;">Descripción de Servicio 2:</label>
+                  <input formControlName="serviced2" class="form-control" />
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="servicet2" style="font-weight:bolder; font-size: 14px;">Precio Unitario 2:</label>
+                  <input formControlName="servicet2" class="form-control" />
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="typeservice3" style="font-weight:bolder; font-size: 14px;">Tipo de Servicio 3:</label>
+                  <select formControlName="typeservice3" class="form-control">
+                    <option value="Seleccione">--Seleccione un Servicio--</option>
+                    <option value="INSTALACION">Instalación</option>
+                    <option value="MANTENIMIENTO">Mantenimiento</option>
+                    <option value="REPARACION">Reparación</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="serviced3" style="font-weight:bolder; font-size: 14px;">Descripción de Servicio 3:</label>
+                  <input formControlName="serviced3" class="form-control" />
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="servicet3" style="font-weight:bolder; font-size: 14px;">Precio Unitario 3:</label>
+                  <input formControlName="servicet3" class="form-control" />
+                </div>
+              </div>
+            </div>
+
+            <hr style="border: 2px solid gray; margin-top: 15px; margin-bottom: 15px;">
+
+            <div class="row" style="margin-bottom: -1%">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <div style="text-align: center;">
+                    <label for=" observations" style="font-weight:bolder; font-size: 14px; margin-bottom: -5%">
+                      Observaciones:</label>
+                  </div>
+                  <textarea style="width: 100%; margin-bottom: -2%" formControlName="observations" id="observations"
+                    class="form-control" name="comentarios" rows="3">Escribe aquí tus comentarios</textarea>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="submit" (click)="updateOrder()" class="btn btn-primary">Actualizar</button>
+        </div>
+      </div>
+    </div>
+  </div>

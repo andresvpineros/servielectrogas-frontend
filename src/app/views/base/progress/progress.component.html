@@ -1,0 +1,234 @@
+<div class="container mt-3">
+  <!-- Add this to your HTML template -->
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label for="Seleccione una fecha">Seleccione una fecha</label>
+      <div class="input-group">
+        <input
+          type="date"
+          class="form-control"
+          [(ngModel)]="inputValue"
+          placeholder="Enter date"
+        />
+        <div class="input-group-append">
+          <button
+            class="btn btn-primary"
+            type="button"
+            (click)="redirectToLink()"
+          >
+            Descargar Agenda
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 mb-3">
+      <label for="Filtrar">Filtrar</label>
+      <input type="text" class="form-control" placeholder="Filtrar tabla" />
+    </div>
+  </div>
+
+  <table id="myTable" class="table table-bordered">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Tecnico</th>
+        <th scope="col">Fecha</th>
+        <th scope="col">Hora</th>
+        <th scope="col">Cliente</th>
+        <th scope="col">Direccion</th>
+        <!-- New column for the direccion -->
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let client of schedulList; let i = index">
+        <th>{{ client.id }}</th>
+        <td>{{ client.technicianName }}</td>
+        <td>{{ client.date }}</td>
+        <td>{{ client.hour }}</td>
+        <td>{{ client.infoClient }}</td>
+        <td>{{ client.address }}</td>
+        <td>
+          <button
+            class="btn btn-info btn-sm"
+            data-bs-toggle="modal"
+            data-bs-target="#createNewModal"
+            (click)="onEdit(client, i)"
+          >
+            ✏️
+          </button>
+          <button class="btn btn-danger btn-sm" (click)="deleteElement(i)">
+            🗑️
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="createNewModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="createNewModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="createNewModalLabel"></h5>
+        <button
+          type="button"
+          class="close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form [formGroup]="AgendaForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <input
+              type="hidden"
+              id="id"
+              class="form-control"
+              formControlName="id"
+            />
+            <input
+              type="hidden"
+              id="idorden"
+              class="form-control"
+              formControlName="idorden"
+            />
+            <input
+              type="hidden"
+              id="iduser"
+              class="form-control"
+              formControlName="iduser"
+            />
+          </div>
+          <!-- Formulario para nuevo elemento -->
+          <div class="form-group">
+            <label for="otroCampo">Tecnico</label>
+            <div class="input-group">
+              <input
+                type="search"
+                formControlName="tecnico"
+                id="Tecnico"
+                placeholder="Buscar Tecnico"
+                class="form-control"
+              />
+              <button
+                (click)="GetTecnico()"
+                mat-icon-button
+                type="button"
+                class="btn btn-light"
+              >
+                search
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="fecha">Fecha</label>
+            <input
+              type="date"
+              id="fecha"
+              class="form-control"
+              formControlName="fecha"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="horaF">Hora:</label>
+            <select
+              formControlName="horaF"
+              id="horaF"
+              class="form-control"
+              required
+            >
+              <option value="" disabled selected hidden>
+                --Seleccionar hora--
+              </option>
+              <option value="1:00 - 02:00 AM">01:00 AM - 02:00 AM</option>
+              <option value="2:00 - 03:00 AM">02:00 AM - 03:00 AM</option>
+              <option value="3:00 - 04:00 AM">03:00 AM - 04:00 AM</option>
+              <option value="4:00 - 05:00 AM">04:00 AM - 05:00 AM</option>
+              <option value="5:00 - 06:00 AM">05:00 AM - 06:00 AM</option>
+              <option value="6:00 - 07:00 AM">06:00 AM - 07:00 AM</option>
+              <option value="7:00 - 08:00 AM">07:00 AM - 08:00 AM</option>
+              <option value="8:00 - 09:00 AM">08:00 AM - 09:00 AM</option>
+              <option value="9:00 - 10:00 AM">09:00 AM - 10:00 AM</option>
+              <option value="10:00 - 11:00 AM">10:00 AM - 11:00 AM</option>
+              <option value="11:00 - 12:00 AM">11:00 AM - 12:00 PM</option>
+              <option value="12:00 - 01:00 PM">12:00 PM - 01:00 PM</option>
+              <option value="1:00 - 02:00 PM">01:00 PM - 02:00 PM</option>
+              <option value="2:00 - 03:00 PM">02:00 PM - 03:00 PM</option>
+              <option value="3:00 - 04:00 PM">03:00 PM - 04:00 PM</option>
+              <option value="4:00 - 05:00 PM">04:00 PM - 05:00 PM</option>
+              <option value="5:00 - 06:00 PM">05:00 PM - 06:00 PM</option>
+              <option value="6:00 - 07:00 PM">06:00 PM - 07:00 PM</option>
+              <option value="7:00 - 08:00 PM">07:00 PM - 08:00 PM</option>
+              <option value="8:00 - 09:00 PM">08:00 PM - 09:00 PM</option>
+              <option value="9:00 - 10:00 PM">09:00 PM - 10:00 PM</option>
+              <option value="10:00 - 11:00 PM">10:00 PM - 11:00 PM</option>
+              <option value="11:00 - 12:00 PM">11:00 PM - 12:00 AM</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="cliente">Cliente</label>
+            <input
+              type="text"
+              id="cliente"
+              class="form-control"
+              formControlName="cliente"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="direccion">Direccion</label>
+            <input
+              type="text"
+              id="direccion"
+              class="form-control"
+              formControlName="direccion"
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Close
+          </button>
+          <div *ngIf="IsCreate">
+            <button
+              type="button"
+              class="btn btn-primary"
+              data-bs-dismiss="modal"
+              (click)="createNew()"
+            >
+              Guardar
+            </button>
+          </div>
+          <div *ngIf="IsEdit">
+            <button
+              type="button"
+              class="btn btn-primary"
+              data-bs-dismiss="modal"
+              (click)="updateSchedule()"
+            >
+              Actualizar
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

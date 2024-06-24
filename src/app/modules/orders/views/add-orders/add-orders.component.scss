@@ -1,0 +1,99 @@
+.title-add {
+  color: #585858;
+  font-weight: 400;
+  margin-bottom: 20px;
+}
+
+.subtitle-add {
+  color: #585858;
+  font-weight: 400;
+}
+
+.form-container {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.input-invalid {
+  border-color: red;
+}
+
+.help-text {
+  color: red;
+}
+
+.add-client-button-container {
+  position: relative;
+
+}
+
+.add-client-bottom {
+  position: absolute;
+  bottom: 0;
+}
+
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.custom-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  vertical-align: top;
+}
+
+.id-cell {
+  width: 50px;
+  text-align: center;
+}
+
+.inputs-cell {
+  width: calc(100% - 50px);
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Adjust the number of columns as needed */
+  gap: 10px;
+}
+
+.grid-item input {
+  width: 100%;
+  padding: 5px;
+  box-sizing: border-box;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  gap: 10px;
+}
+
+.button-item {
+  cursor: pointer;
+}
+
+input[type=time]::-webkit-datetime-edit-ampm-field {
+  display: none;
+}
+
+.info-service-description {
+  display: flex;
+  gap: 10px;
+}
+
+.input-total-charged {
+  width: 300px;
+}
+
+.success-snackbar {
+  background-color: green;
+  color: white;
+}
+
+.error-snackbar {
+  background-color: red;
+  color: white;
+}

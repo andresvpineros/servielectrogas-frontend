@@ -1,0 +1,38 @@
+<ng-container>
+  <c-container [fluid]="true">
+    <div class="info-container">
+      <button
+        toggle="visible"
+        cHeaderToggler
+        [cSidebarToggle]="sidebarId"
+        class="ps-1"
+      >
+        <svg cIcon name="cilMenu" size="lg"></svg>
+      </button>
+
+      <span class="page-name">{{ pageTitle }}</span>
+    </div>
+
+    <c-header-nav class="ms-3">
+      <ng-container *ngTemplateOutlet="userDropdown"></ng-container>
+    </c-header-nav>
+  </c-container>
+</ng-container>
+<!--</c-header>-->
+
+<ng-template #userDropdown>
+  <c-dropdown alignment="end" variant="nav-item">
+    <div>
+      <!-- Your application content -->
+      <li>
+        <button
+          class="btn btn-danger btn-flat text-light font-weight-bold"
+          (click)="logout()"
+        >
+          Salir
+          <svg cIcon name="cilExitToApp" size="xs"></svg>
+        </button>
+      </li>
+    </div>
+  </c-dropdown>
+</ng-template>

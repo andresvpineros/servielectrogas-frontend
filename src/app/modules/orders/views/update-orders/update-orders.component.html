@@ -1,0 +1,687 @@
+<div class="container mt-3">
+  <h3 class="title-add">Editar orden de trabajo [ID: {{ id }}]</h3>
+  <c-card class="border border-light">
+    <c-card-body>
+      <form
+        [formGroup]="dataForm"
+        (ngSubmit)="onSubmit()"
+        class="row p-2 form-container"
+      >
+        <div class="row form-row-container">
+          <div class="col-lg">
+            <label for="basic-url" class="form-label">Observaciones</label>
+            <div class="input-group">
+              <input
+                required
+                type="text"
+                id="observations"
+                class="form-control"
+                formControlName="observations"
+                placeholder="Ingresa las observaciones"
+                [ngClass]="{
+                  'input-invalid':
+                    dataForm.get('observations')?.touched &&
+                    dataForm.get('observations')?.invalid
+                }"
+              />
+            </div>
+            <div
+              class="help-text"
+              *ngIf="
+                dataForm.get('observations')?.touched &&
+                dataForm.get('observations')?.invalid
+              "
+            >
+              <small *ngIf="dataForm.get('observations').errors?.required"
+                >Este campo es requerido</small
+              >
+            </div>
+          </div>
+          <div class="col">
+            <label for="basic-url" class="form-label">Estado</label>
+            <div class="input-group">
+              <select
+                required
+                id="status"
+                class="form-select"
+                formControlName="status"
+                [ngClass]="{
+                  'input-invalid':
+                    dataForm.get('status')?.touched &&
+                    dataForm.get('status')?.invalid
+                }"
+              >
+                <option value="" selected>Selecciona el estado</option>
+                <option value="0">PENDIENTE</option>
+                <option value="1">PROGRESO</option>
+                <option value="2">COMPLETADA</option>
+                <option value="3">CANCELADA</option>
+              </select>
+            </div>
+            <div
+              class="help-text"
+              *ngIf="
+                dataForm.get('status')?.touched &&
+                dataForm.get('status')?.invalid
+              "
+            >
+              <small *ngIf="dataForm.get('status').errors?.required"
+                >Este campo es requerido</small
+              >
+            </div>
+          </div>
+          <hr class="bg-danger mt-4 border-2 border-top" />
+          <div class="col-md">
+            <div class="form-group">
+              <label for="clientId" class="form-label">Cliente</label>
+              <div class="input-group">
+                <ng-select
+                  id="clientId"
+                  class="form-control"
+                  [items]="filteredClients"
+                  formControlName="clientId"
+                  bindLabel="displayLabel"
+                  bindValue="id"
+                  [placeholder]="
+                    dataForm.get('clientId')?.value === '' ||
+                    dataForm.get('clientId')?.value === null
+                      ? 'Busca un cliente por Identificación o Teléfono'
+                      : ''
+                  "
+                  (search)="searchClients($event.term)"
+                  dropdownPosition="auto"
+                  virtualScroll="true"
+                  [appendTo]="'body'"
+                  [ngClass]="{
+                    'input-invalid':
+                      dataForm.get('clientId')?.touched &&
+                      dataForm.get('clientId')?.invalid
+                  }"
+                >
+                  <ng-template ng-option-tmp let-client="item">
+                    <span>{{ client.displayLabel }}</span>
+                  </ng-template>
+                </ng-select>
+              </div>
+            </div>
+            <div
+              class="help-text"
+              *ngIf="
+                dataForm.get('clientId')?.touched &&
+                dataForm.get('clientId')?.invalid
+              "
+            >
+              <small *ngIf="dataForm.get('clientId').errors?.required"
+                >Este campo es requerido</small
+              >
+            </div>
+          </div>
+          <div class="mt-3">
+            <button
+              type="button"
+              class="btn btn-info text-light mb-2"
+              routerLink="/base/cards"
+              routerLinkActive="active"
+            >
+              Registrar Cliente
+              <svg cIcon name="cil-user-follow" size="xs"></svg>
+            </button>
+          </div>
+          <hr class="bg-danger mt-3 border-2 border-top" />
+          <h6 class="subtitle-add">Descripción del servicio</h6>
+          <div class="col-lg mt-2">
+            <div class="info-service-description">
+              <button
+                type="button"
+                class="btn btn-info text-light mb-2"
+                (click)="addOrderService()"
+              >
+                Agregar Servicio
+                <svg cIcon name="cil-description" size="xs"></svg>
+              </button>
+
+              <div *ngIf="orderServices.controls.length > 0">
+                <input
+                  type="text"
+                  disabled
+                  id="totalCharged"
+                  [value]="
+                    'Precio total: ' +
+                    (dataForm.get('totalCharged')?.value | priceFormat)
+                  "
+                  class="form-control input-total-charged"
+                />
+              </div>
+            </div>
+            <form [formGroup]="dataForm" (ngSubmit)="onSubmit()">
+              <table class="custom-table">
+                <tbody formArrayName="orderServices">
+                  <tr
+                    *ngFor="
+                      let orderService of orderServices.controls;
+                      let i = index
+                    "
+                    [formGroupName]="i"
+                  >
+                    <td class="id-cell">{{ i + 1 }}</td>
+                    <td class="inputs-cell">
+                      <div class="grid-container">
+                        <div class="grid-item">
+                          <div class="form-group">
+                            <label for="serviceId{{ i }}" class="form-label"
+                              >Tipo de Servicio</label
+                            >
+                            <div class="input-group">
+                              <ng-select
+                                id="serviceId{{ i }}"
+                                class="form-control"
+                                [items]="filteredServices"
+                                formControlName="serviceId"
+                                bindLabel="displayLabel"
+                                bindValue="id"
+                                [placeholder]="
+                                  orderService.get('serviceId')?.value === '' ||
+                                  orderService.get('serviceId')?.value === null
+                                    ? 'Selecciona un tipo de servicio'
+                                    : ''
+                                "
+                                (search)="searchServices($event.term)"
+                                (change)="onServiceChange(i, $event)"
+                                dropdownPosition="auto"
+                                virtualScroll="true"
+                                [appendTo]="'body'"
+                                [ngClass]="{
+                                  'input-invalid':
+                                    orderService.get('serviceId')?.touched &&
+                                    orderService.get('serviceId')?.invalid
+                                }"
+                              >
+                                <ng-template ng-option-tmp let-service="item">
+                                  <span>{{ service.displayLabel }} </span>
+                                </ng-template>
+                              </ng-select>
+                            </div>
+                          </div>
+
+                          <div
+                            class="help-text"
+                            *ngIf="
+                              orderService.get('serviceId')?.touched &&
+                              orderService.get('serviceId')?.invalid
+                            "
+                          >
+                            <small
+                              *ngIf="
+                                orderService.get('serviceId').errors?.required
+                              "
+                              >Este campo es requerido</small
+                            >
+                          </div>
+                        </div>
+                        <div class="grid-item">
+                          <div class="form-group">
+                            <label for="observacion{{ i }}" class="form-label"
+                              >Observaciones</label
+                            >
+                            <div class="input-group">
+                              <input
+                                required
+                                type="text"
+                                id="observacion{{ i }}"
+                                class="form-control"
+                                formControlName="observations"
+                                placeholder="Ingresa las observaciones"
+                                [ngClass]="{
+                                  'input-invalid':
+                                    orderService.get('observations')?.touched &&
+                                    orderService.get('observations')?.invalid
+                                }"
+                              />
+                            </div>
+                            <div
+                              class="help-text"
+                              *ngIf="
+                                orderService.get('observations')?.touched &&
+                                orderService.get('observations')?.invalid
+                              "
+                            >
+                              <small
+                                *ngIf="
+                                  orderService.get('observations').errors
+                                    ?.required
+                                "
+                                >Este campo es requerido</small
+                              >
+                            </div>
+                          </div>
+                        </div>
+                        <div class="grid-item">
+                          <div class="form-group">
+                            <label for="duration{{ i }}" class="form-label"
+                              >Duración</label
+                            >
+                            <div class="input-group">
+                              <input
+                                required
+                                id="duration{{ i }}"
+                                class="form-control"
+                                formControlName="duration"
+                                type="text"
+                                mask="00:00"
+                                placeholder="HH:mm"
+                                [ngClass]="{
+                                  'input-invalid':
+                                    orderService.get('duration')?.touched &&
+                                    orderService.get('duration')?.invalid
+                                }"
+                              />
+                            </div>
+                            <div
+                              class="help-text"
+                              *ngIf="
+                                orderService.get('duration')?.touched &&
+                                orderService.get('duration')?.invalid
+                              "
+                            >
+                              <small
+                                *ngIf="
+                                  orderService.get('duration').errors?.required
+                                "
+                                >Este campo es requerido</small
+                              >
+                            </div>
+                          </div>
+                        </div>
+                        <div class="grid-item">
+                          <div class="form-group">
+                            <label for="priority{{ i }}" class="form-label"
+                              >Prioridad</label
+                            >
+                            <div class="input-group">
+                              <select
+                                required
+                                id="priority{{ i }}"
+                                class="form-select"
+                                formControlName="priority"
+                                [ngClass]="{
+                                  'input-invalid':
+                                    orderService.get('priority')?.touched &&
+                                    orderService.get('priority')?.invalid
+                                }"
+                              >
+                                <option value="" selected>
+                                  Selecciona la prioridad
+                                </option>
+                                <option value="2">BAJA</option>
+                                <option value="1">MEDIA</option>
+                                <option value="0">ALTA</option>
+                              </select>
+                            </div>
+                            <div
+                              class="help-text"
+                              *ngIf="
+                                orderService.get('priority')?.touched &&
+                                orderService.get('priority')?.invalid
+                              "
+                            >
+                              <small
+                                *ngIf="
+                                  orderService.get('priority').errors?.required
+                                "
+                                >Este campo es requerido</small
+                              >
+                            </div>
+                          </div>
+                        </div>
+                        <div class="grid-item">
+                          <div class="form-group">
+                            <label for="status{{ i }}" class="form-label"
+                              >Estado</label
+                            >
+                            <div class="input-group">
+                              <select
+                                required
+                                id="status{{ i }}"
+                                class="form-select"
+                                formControlName="status"
+                                [ngClass]="{
+                                  'input-invalid':
+                                    orderService.get('status')?.touched &&
+                                    orderService.get('status')?.invalid
+                                }"
+                              >
+                                <option value="" selected>
+                                  Selecciona el estado
+                                </option>
+                                <option value="0">PENDIENTE</option>
+                                <option value="1">PROGRESO</option>
+                                <option value="2">COMPLETADA</option>
+                                <option value="3">CANCELADA</option>
+                              </select>
+                            </div>
+                            <div
+                              class="help-text"
+                              *ngIf="
+                                orderService.get('status')?.touched &&
+                                orderService.get('status')?.invalid
+                              "
+                            >
+                              <small
+                                *ngIf="
+                                  orderService.get('status').errors?.required
+                                "
+                                >Este campo es requerido</small
+                              >
+                            </div>
+                          </div>
+                        </div>
+                        <div class="grid-item">
+                          <div class="form-group">
+                            <label
+                              for="orderServiceDate{{ i }}"
+                              class="form-label"
+                              >Fecha de servicio</label
+                            >
+                            <div class="input-group">
+                              <input
+                                required
+                                type="date"
+                                id="orderServiceDate{{ i }}"
+                                class="form-control"
+                                formControlName="orderServiceDate"
+                                [ngClass]="{
+                                  'input-invalid':
+                                    orderService.get('orderServiceDate')
+                                      ?.touched &&
+                                    orderService.get('orderServiceDate')
+                                      ?.invalid
+                                }"
+                              />
+                            </div>
+                          </div>
+                          <div
+                            class="help-text"
+                            *ngIf="
+                              orderService.get('orderServiceDate')?.touched &&
+                              orderService.get('orderServiceDate')?.invalid
+                            "
+                          >
+                            <small
+                              *ngIf="
+                                orderService.get('orderServiceDate').errors
+                                  ?.required
+                              "
+                              >Este campo es requerido</small
+                            >
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="action-buttons">
+                        <div
+                          *ngIf="
+                            orderService.get('alreadyCreated').value != true
+                          "
+                          class="button-item"
+                          (click)="removeOrderService(i)"
+                          data-toggle="tooltip"
+                          data-placement="bottom"
+                          title="Remover"
+                        >
+                          <svg
+                            cIcon
+                            name="cilTrash"
+                            size="lg"
+                            class="text-danger"
+                          ></svg>
+                        </div>
+                        <div
+                          *ngIf="
+                            orderService.get('alreadyCreated').value != false
+                          "
+                          class="button-item"
+                          data-toggle="tooltip"
+                          data-placement="bottom"
+                          (click)="
+                            toggleEvidencesModal(
+                              orderService.get('id').value,
+                              i
+                            )
+                          "
+                          title="Evidencias"
+                        >
+                          <svg
+                            cIcon
+                            name="cilPaperclip"
+                            size="lg"
+                            class="text-info"
+                          ></svg>
+                        </div>
+                      </div>
+                      <c-modal
+                        id="liveDemoModal"
+                        [visible]="visible"
+                        (visibleChange)="handleLiveDemoChange($event)"
+                      >
+                        <c-modal-header>
+                          <h5 cModalTitle>
+                            Cargue de evidencia | Evidencia Nro. {{ idModal }}
+                          </h5>
+                          <button
+                            (click)="closeEvidencesModal()"
+                            cButtonClose
+                          ></button>
+                        </c-modal-header>
+                        <c-modal-body>
+                          <div *ngIf="existingFile">
+                            <p>
+                              Archivo existente: {{ existingFile.filename }}
+                            </p>
+                          </div>
+                          <div class="upload-container">
+                            <input
+                              type="file"
+                              accept="application/pdf"
+                              (change)="onFileSelected($event)"
+                              #fileInput
+                              class="file-input"
+                            />
+
+                            <div class="upload-box" (click)="fileInput.click()">
+                              <svg
+                                cIcon
+                                name="cil-arrow-thick-from-bottom"
+                                size="lg"
+                              ></svg>
+                              Cargar archivo
+                            </div>
+
+                            <div *ngIf="selectedFile != ''" class="mt-1">
+                              <p>Archivo cargado: {{ selectedFile?.name }}</p>
+                            </div>
+                          </div>
+                        </c-modal-body>
+                        <c-modal-footer>
+                          <button
+                            (click)="closeEvidencesModal()"
+                            cButton
+                            color="secondary"
+                          >
+                            Cerrar
+                          </button>
+                          <button
+                            cButton
+                            color="primary"
+                            (click)="uploadFile()"
+                            [disabled]="!selectedFile"
+                          >
+                            Cargar evidencia
+                          </button>
+                          <button
+                            *ngIf="existingFile"
+                            cButton
+                            color="success"
+                            (click)="downloadFile()"
+                          >
+                            Descargar evidencia
+                          </button>
+                        </c-modal-footer>
+                      </c-modal>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </form>
+            <div
+              class="form-group mt-2 input-total-charged"
+              *ngIf="orderServices.controls.length > 0"
+            >
+              <label for="aditionalCharged" class="form-label"
+                >Cobro adicional</label
+              >
+              <div class="input-group">
+                <input
+                  type="text"
+                  id="aditionalCharged"
+                  class="form-control"
+                  formControlName="aditionalCharged"
+                  placeholder="Ingresa algún cobro adicional"
+                  mask="separator.0"
+                  prefix="$ "
+                  (change)="updateTotalCharged()"
+                />
+              </div>
+            </div>
+          </div>
+
+          <hr class="bg-danger mt-3 border-2 border-top" />
+          <div class="col-md">
+            <div class="form-group">
+              <label for="technicianId" class="form-label"
+                >Técnico encargado</label
+              >
+              <div class="input-group">
+                <ng-select
+                  id="technicianId"
+                  class="form-control"
+                  [items]="filteredUsers"
+                  bindLabel="displayLabel"
+                  bindValue="id"
+                  formControlName="technicianId"
+                  [placeholder]="
+                    dataForm.get('technicianId')?.value === '' ||
+                    dataForm.get('technicianId')?.value === null
+                      ? 'Busca un técnico por Nombres'
+                      : ''
+                  "
+                  (search)="searchUsers($event.term)"
+                  dropdownPosition="auto"
+                  virtualScroll="true"
+                  [appendTo]="'body'"
+                  [ngClass]="{
+                    'input-invalid':
+                      dataForm.get('technicianId')?.touched &&
+                      dataForm.get('technicianId')?.invalid
+                  }"
+                >
+                  <ng-template ng-option-tmp let-client="item">
+                    <span>{{ client.displayLabel }}</span>
+                  </ng-template>
+                </ng-select>
+              </div>
+            </div>
+            <div
+              class="help-text"
+              *ngIf="
+                dataForm.get('technicianId')?.touched &&
+                dataForm.get('technicianId')?.invalid
+              "
+            >
+              <small *ngIf="dataForm.get('technicianId').errors?.required"
+                >Este campo es requerido</small
+              >
+            </div>
+          </div>
+
+          <div class="col-lg">
+            <label for="scheduleDate" class="form-label"
+              >Fecha de agendamiento</label
+            >
+            <div class="input-group">
+              <input
+                required
+                type="date"
+                id="scheduleDate"
+                class="form-control"
+                formControlName="scheduleDate"
+                [ngClass]="{
+                  'input-invalid':
+                    dataForm.get('scheduleDate')?.touched &&
+                    dataForm.get('scheduleDate')?.invalid
+                }"
+              />
+            </div>
+            <div
+              class="help-text"
+              *ngIf="
+                dataForm.get('scheduleDate')?.touched &&
+                dataForm.get('scheduleDate')?.invalid
+              "
+            >
+              <small *ngIf="dataForm.get('scheduleDate').errors?.required"
+                >Este campo es requerido</small
+              >
+            </div>
+          </div>
+          <div class="col-lg">
+            <label for="scheduleTime" class="form-label"
+              >Hora de agendamiento</label
+            >
+            <div class="input-group">
+              <input
+                required
+                type="time"
+                id="scheduleTime"
+                class="form-control"
+                formControlName="scheduleTime"
+                [ngClass]="{
+                  'input-invalid':
+                    dataForm.get('scheduleTime')?.touched &&
+                    dataForm.get('scheduleTime')?.invalid
+                }"
+              />
+            </div>
+            <div
+              class="help-text"
+              *ngIf="
+                dataForm.get('scheduleTime')?.touched &&
+                dataForm.get('scheduleTime')?.invalid
+              "
+            >
+              <small *ngIf="dataForm.get('scheduleTime').errors?.required"
+                >Este campo es requerido</small
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="row form-row-container mt-3">
+          <div class="col-md d-flex gap-3">
+            <button type="submit" class="btn btn-primary text-light">
+              Editar Orden
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary text-white"
+              routerLink="/ordenes-trabajo"
+              routerLinkActive="active"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </form>
+    </c-card-body>
+  </c-card>
+</div>
