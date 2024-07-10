@@ -22,6 +22,7 @@ export class UpdateOrdersComponent {
   filteredClients: Client[] = [];
   filteredUsers: User[] = [];
   filteredServices: Service[] = [];
+  totalOrderServices: OrderService[] = [];
   aditionalCharges: number = 0;
   visible = false;
   selectedFile: File | string = '';
@@ -35,7 +36,6 @@ export class UpdateOrdersComponent {
   orderServiceId: number | null = null;
   fileUrl: SafeUrl | null = null;
   idModal: string | null = null;
-  private previousLength: number = 0;
 
   constructor(
     private fb: FormBuilder,
@@ -192,6 +192,24 @@ export class UpdateOrdersComponent {
         orderService.duration = this.transformDurationToBackend(
           orderService.duration
         );
+        console.log(
+          orderService.warrantyOrderServiceId !== null,
+          orderService.warrantyOrderServiceId !== '',
+          orderService.warrantyOrderServiceId
+        );
+        if (
+          orderService.warrantyOrderServiceId !== null &&
+          orderService.warrantyOrderServiceId !== ''
+        ) {
+          orderService.warrantyStartDate = '';
+          orderService.warrantyEndDate = '';
+        } else {
+          orderService.warrantyOrderServiceId = '';
+          orderService.warrantyStartDate = orderService.orderServiceDate;
+          orderService.warrantyEndDate = this.formatDateToInput(
+            orderService.warrantyEndDate
+          );
+        }
       });
 
       this.ordersService.updateOrder(this.id || null, order).subscribe(
@@ -222,6 +240,21 @@ export class UpdateOrdersComponent {
           this.orderServices.push(this.initOrderServiceFormGroup(service))
         );
 
+        this.totalOrderServices = data.orderServices.filter(
+          (service: OrderService, i: number) => {
+            if (service.warrantyEndDate) {
+              const warrantyEndDate = new Date(service.warrantyEndDate)
+                .toISOString()
+                .split('T')[0];
+              const today = new Date().toISOString().split('T')[0];
+
+              return warrantyEndDate >= today;
+            } else {
+              return false;
+            }
+          }
+        );
+
         this.dataForm.patchValue({
           observations: data.observations,
           status: data.status,
@@ -247,6 +280,7 @@ export class UpdateOrdersComponent {
       ordersId: [service.ordersId],
       service: [service.service],
       serviceId: [service.serviceId],
+      serviceWarrantyTime: [service.service.warrantyTime],
       observations: [service.observations, Validators.required],
       orderServiceDate: [
         this.formatDateToInput(service.orderServiceDate),
@@ -259,12 +293,16 @@ export class UpdateOrdersComponent {
       price: [service.service.price],
       priorityName: [service.priorityName],
       priority: [service.priority, Validators.required],
+      warrantyOrderServiceId: [service.warrantyOrderServiceId],
       statusName: [service.statusName],
       status: [service.status, Validators.required],
       createdAt: [service.createdAt],
       technicianName: [service.technicianName],
       technicianId: [service.technicianId, Validators.required],
       alreadyCreated: true,
+      warrantyStartDate: [service.warrantyStartDate],
+      warrantyEndDate: [this.formatInputToDate(service.warrantyEndDate)],
+      warrantyReason: [service.warrantyReason],
     });
   }
 
@@ -293,20 +331,21 @@ export class UpdateOrdersComponent {
   }
 
   searchServices(description: any): void {
-    this.ordersService.searchServices(description).subscribe((services) => {
-      this.filteredServices = services.map((service) => ({
-        ...service,
-        displayLabel: `${
-          service.servicesDescription
-        } | ${service.price.toLocaleString('es-CO', {
-          style: 'currency',
-          currency: 'COP',
-          minimumFractionDigits: 0,
-          maximumFractionDigits: 0,
-        })}`,
-      }));
-      console.log('filtered services', this.filteredServices);
-    });
+    this.ordersService
+      .searchServices(description, false)
+      .subscribe((services) => {
+        this.filteredServices = services.map((service) => ({
+          ...service,
+          displayLabel: `${
+            service.servicesDescription
+          } | ${service.price.toLocaleString('es-CO', {
+            style: 'currency',
+            currency: 'COP',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+          })}`,
+        }));
+      });
   }
 
   // onChange
@@ -317,7 +356,25 @@ export class UpdateOrdersComponent {
 
   onServiceChange(index: number, selectedService: any): void {
     const price = selectedService.price;
+    this.orderServices
+      .at(index)
+      .get('serviceWarrantyTime')
+      ?.setValue(selectedService.warrantyTime);
     this.orderServices.at(index).get('price')?.setValue(price);
+    this.transformWarrantyEndDateToBackend(
+      this.orderServices.at(index).get('orderServiceDate')?.value,
+      selectedService.warrantyTime,
+      index
+    );
+
+    if (selectedService.id === 0) {
+      this.orderServices.at(index).get('warrantyStartDate')?.setValue('');
+      this.orderServices.at(index).get('warrantyEndDate')?.setValue('');
+      this.orderServices.at(index).get('warrantyReason')?.setValue('');
+    } else {
+      this.orderServices.at(index).get('warrantyOrderServiceId')?.setValue('');
+      this.orderServices.at(index).get('warrantyOrderServiceId')?.disabled;
+    }
     this.updateTotalCharged();
   }
 
@@ -342,13 +399,18 @@ export class UpdateOrdersComponent {
   createOrderService(): FormGroup {
     return this.fb.group({
       serviceId: ['', [Validators.required]],
+      serviceWarrantyTime: ['', [Validators.required]],
       observations: ['', [Validators.required]],
       priority: ['', [Validators.required]],
       status: ['', [Validators.required]],
       duration: ['', [Validators.required]],
       orderServiceDate: ['', [Validators.required]],
-      price: [{ value: 0, disabled: false }, [Validators.required]],
+      warrantyStartDate: [''],
+      warrantyEndDate: [''],
+      warrantyReason: [''],
       alreadyCreated: false,
+      warrantyOrderServiceId: [''],
+      price: [{ value: 0, disabled: false }, [Validators.required]],
     });
   }
 
@@ -413,6 +475,51 @@ export class UpdateOrdersComponent {
     const day = String(date.getDate()).padStart(2, '0');
 
     return `${year}-${month}-${day}`;
+  }
+
+  formatInputToDate(value: string): string {
+    const date = new Date(value);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${month}/${day}/${year}`;
+  }
+
+  transformWarrantyEndDateToBackend(
+    orderServiceDate: string,
+    warrantyTimeService: number,
+    index: number
+  ) {
+    if (orderServiceDate && warrantyTimeService) {
+      let serviceDate = new Date(orderServiceDate);
+      serviceDate.setDate(serviceDate.getDate() + warrantyTimeService);
+
+      let day = ('0' + serviceDate.getDate()).slice(-2);
+      let month = ('0' + (serviceDate.getMonth() + 1)).slice(-2);
+      let year = serviceDate.getFullYear();
+      let formattedDate = `${month}/${day}/${year}`;
+
+      this.orderServices
+        .at(index)
+        .get('warrantyEndDate')
+        ?.setValue(formattedDate);
+    }
+  }
+
+  getWarrantyEndDateValue(index: number): string {
+    const warrantyEndDate = this.orderServices
+      .at(index)
+      .get('warrantyEndDate')?.value;
+    const serviceWarrantyTime = this.orderServices
+      .at(index)
+      .get('serviceWarrantyTime')?.value;
+
+    if (warrantyEndDate && serviceWarrantyTime) {
+      return `${warrantyEndDate} | ${serviceWarrantyTime} días de garantía`;
+    }
+
+    return '';
   }
 
   convertDurationToTime(value: string): string {

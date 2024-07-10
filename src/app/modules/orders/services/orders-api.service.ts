@@ -165,7 +165,10 @@ export class OrdersApiService {
       );
   }
 
-  public searchServices(description: string): Observable<Service[]> {
+  public searchServices(
+    description: string,
+    creatingOrder: boolean
+  ): Observable<Service[]> {
     let params = new HttpParams().set('description', description);
 
     return this.http
@@ -174,7 +177,9 @@ export class OrdersApiService {
       })
       .pipe(
         map((data: ResultMessage<Service[]>) => {
-          return data.data.map((service: Service) => new Service(service));
+          return data.data
+            .filter((service: Service) => !(creatingOrder && service.id === 0))
+            .map((service: Service) => new Service(service));
         })
       );
   }

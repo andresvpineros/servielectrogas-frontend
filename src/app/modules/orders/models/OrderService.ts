@@ -13,8 +13,12 @@ export class OrderService {
   status: number;
   observations: string;
   orderServiceDate: string;
+  warrantyOrderServiceId: number;
   duration: string;
   createdAt: string;
+  warrantyStartDate: string;
+  warrantyEndDate: string;
+  warrantyReason: string;
 
   constructor(data: any) {
     this.id = data.id;
@@ -24,6 +28,7 @@ export class OrderService {
     this.observations = data.observations;
     this.orderServiceDate = data.orderServiceDate;
     this.duration = data.duration;
+    this.warrantyOrderServiceId = data.warrantyOrderServiceId;
     this.priorityName = data.priorityName;
     this.priority = data.priority;
     this.statusName = data.statusName;
@@ -31,5 +36,8 @@ export class OrderService {
     this.createdAt = data.createdAt;
     this.technicianName = data.technicianName;
     this.technicianId = data.technicianId;
+    this.warrantyStartDate = data.warrantyStartDate;
+    this.warrantyEndDate = data.warrantyEndDate;
+    this.warrantyReason = data.warrantyReason;
   }
 }

@@ -389,6 +389,14 @@
                                 id="orderServiceDate{{ i }}"
                                 class="form-control"
                                 formControlName="orderServiceDate"
+                                (change)="
+                                  transformWarrantyEndDateToBackend(
+                                    $event.target.value,
+                                    orderService.get('serviceWarrantyTime')
+                                      .value,
+                                    i
+                                  )
+                                "
                                 [ngClass]="{
                                   'input-invalid':
                                     orderService.get('orderServiceDate')
@@ -413,6 +421,69 @@
                               "
                               >Este campo es requerido</small
                             >
+                          </div>
+                        </div>
+                        <hr />
+                        <hr />
+                        <hr />
+                        <div
+                          class="grid-item"
+                          *ngIf="orderService.get('serviceId')?.value === 0"
+                        >
+                          <div class="form-group">
+                            <label
+                              for="orderServiceDate{{ i }}"
+                              class="form-label"
+                              >Orden de servicio a solucionar</label
+                            >
+                            <div class="input-group">
+                              <input
+                                required
+                                type="text"
+                                placeholder="Buscar una órden de servicio"
+                                class="form-control"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        <div
+                          class="grid-item"
+                          *ngIf="orderService.get('serviceId')?.value !== 0"
+                        >
+                          <div class="form-group">
+                            <label
+                              for="orderServiceDate{{ i }}"
+                              class="form-label"
+                              >Fecha de finalización de garantía</label
+                            >
+                            <div class="input-group">
+                              <input
+                                disabled
+                                type="text"
+                                class="form-control"
+                                [value]="getWarrantyEndDateValue(i)"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        <div
+                          class="grid-item"
+                          *ngIf="orderService.get('serviceId')?.value !== 0"
+                        >
+                          <div class="form-group">
+                            <label
+                              for="orderServiceDate{{ i }}"
+                              class="form-label"
+                              >Razón de la garantía</label
+                            >
+                            <div class="input-group">
+                              <input
+                                type="text"
+                                class="form-control"
+                                placeholder="Ingresa la razón de la garantía"
+                                formControlName="warrantyReason"
+                              />
+                            </div>
                           </div>
                         </div>
                       </div>

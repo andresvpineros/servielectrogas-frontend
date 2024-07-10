@@ -389,6 +389,14 @@
                                 id="orderServiceDate{{ i }}"
                                 class="form-control"
                                 formControlName="orderServiceDate"
+                                (change)="
+                                  transformWarrantyEndDateToBackend(
+                                    $event.target.value,
+                                    orderService.get('serviceWarrantyTime')
+                                      .value,
+                                    i
+                                  )
+                                "
                                 [ngClass]="{
                                   'input-invalid':
                                     orderService.get('orderServiceDate')
@@ -415,13 +423,117 @@
                             >
                           </div>
                         </div>
+                        <hr />
+                        <hr />
+                        <hr />
+                        <div
+                          class="grid-item"
+                          *ngIf="orderService.get('serviceId')?.value === 0"
+                        >
+                          <div class="form-group">
+                            <label for="clientId" class="form-label"
+                              >Orden de servicio a solucionar</label
+                            >
+                            <div class="input-group">
+                              <select
+                                required
+                                id="warrantyOrderServiceId{{ i }}"
+                                class="form-select"
+                                formControlName="warrantyOrderServiceId"
+                                [ngClass]="{
+                                  'input-invalid':
+                                    orderService.get('warrantyOrderServiceId')
+                                      ?.touched &&
+                                    orderService.get('warrantyOrderServiceId')
+                                      ?.invalid
+                                }"
+                              >
+                                <option value="" selected>
+                                  Selecciona una órden de servicio
+                                </option>
+                                <option
+                                  *ngFor="
+                                    let orderServiceItem of totalOrderServices;
+                                    let i = index
+                                  "
+                                  [formGroupName]="i"
+                                  value="{{ orderServiceItem.id }}"
+                                >
+                                  ID: {{ i + 1 }} |
+                                  {{
+                                    orderServiceItem.service.servicesDescription
+                                  }}
+                                  |
+                                  {{ orderServiceItem.observations }}
+                                </option>
+                              </select>
+                            </div>
+                            <div
+                              class="help-text"
+                              *ngIf="
+                                orderService.get('warrantyOrderServiceId')
+                                  ?.touched &&
+                                orderService.get('warrantyOrderServiceId')
+                                  ?.invalid
+                              "
+                            >
+                              <small
+                                *ngIf="
+                                  orderService.get('warrantyOrderServiceId')
+                                    .errors?.required
+                                "
+                                >Este campo es requerido</small
+                              >
+                            </div>
+                          </div>
+                        </div>
+                        <div
+                          class="grid-item"
+                          *ngIf="orderService.get('serviceId')?.value !== 0"
+                        >
+                          <div class="form-group">
+                            <label
+                              for="orderServiceDate{{ i }}"
+                              class="form-label"
+                              >Fecha de finalización de garantía</label
+                            >
+                            <div class="input-group">
+                              <input
+                                disabled
+                                type="text"
+                                class="form-control"
+                                [value]="getWarrantyEndDateValue(i)"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        <div
+                          class="grid-item"
+                          *ngIf="orderService.get('serviceId')?.value !== 0"
+                        >
+                          <div class="form-group">
+                            <label
+                              for="orderServiceDate{{ i }}"
+                              class="form-label"
+                              >Razón de la garantía</label
+                            >
+                            <div class="input-group">
+                              <input
+                                type="text"
+                                class="form-control"
+                                placeholder="Ingresa la razón de la garantía"
+                                formControlName="warrantyReason"
+                              />
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </td>
                     <td>
                       <div class="action-buttons">
                         <div
                           *ngIf="
-                            orderService.get('alreadyCreated').value != true
+                            orderService.get('alreadyCreated').value === false
                           "
                           class="button-item"
                           (click)="removeOrderService(i)"
@@ -438,7 +550,7 @@
                         </div>
                         <div
                           *ngIf="
-                            orderService.get('alreadyCreated').value != false
+                            orderService.get('alreadyCreated').value === true
                           "
                           class="button-item"
                           data-toggle="tooltip"

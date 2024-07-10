@@ -66,6 +66,10 @@ export class AddOrdersComponent {
         orderService.duration = this.transformDurationToBackend(
           orderService.duration
         );
+        orderService.warrantyStartDate = orderService.orderServiceDate;
+        orderService.warrantyEndDate = this.formatDateToBackend(
+          orderService.warrantyEndDate
+        );
       });
 
       this.ordersService.createOrder(order).subscribe(
@@ -113,26 +117,37 @@ export class AddOrdersComponent {
   }
 
   searchServices(description: any): void {
-    this.ordersService.searchServices(description).subscribe((services) => {
-      this.filteredServices = services.map((service) => ({
-        ...service,
-        displayLabel: `${
-          service.servicesDescription
-        } | ${service.price.toLocaleString('es-CO', {
-          style: 'currency',
-          currency: 'COP',
-          minimumFractionDigits: 0,
-          maximumFractionDigits: 0,
-        })}`,
-      }));
-    });
+    this.ordersService
+      .searchServices(description, true)
+      .subscribe((services) => {
+        this.filteredServices = services.map((service) => ({
+          ...service,
+          displayLabel: `${
+            service.servicesDescription
+          } | ${service.price.toLocaleString('es-CO', {
+            style: 'currency',
+            currency: 'COP',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+          })}`,
+        }));
+      });
   }
 
   // onChange
 
   onServiceChange(index: number, selectedService: any): void {
     const price = selectedService.price;
+    this.orderServices
+      .at(index)
+      .get('serviceWarrantyTime')
+      ?.setValue(selectedService.warrantyTime);
     this.orderServices.at(index).get('price')?.setValue(price);
+    this.transformWarrantyEndDateToBackend(
+      this.orderServices.at(index).get('orderServiceDate')?.value,
+      selectedService.warrantyTime,
+      index
+    );
     this.updateTotalCharged();
   }
 
@@ -157,11 +172,15 @@ export class AddOrdersComponent {
   createOrderService(): FormGroup {
     return this.fb.group({
       serviceId: ['', [Validators.required]],
+      serviceWarrantyTime: ['', [Validators.required]],
       observations: ['', [Validators.required]],
       priority: ['', [Validators.required]],
       status: ['', [Validators.required]],
       duration: ['', [Validators.required]],
       orderServiceDate: ['', [Validators.required]],
+      warrantyStartDate: [''],
+      warrantyEndDate: [''],
+      warrantyReason: [''],
       price: [{ value: 0, disabled: false }, [Validators.required]],
     });
   }
@@ -216,6 +235,52 @@ export class AddOrdersComponent {
 
     const totalSeconds = (hours * 60 + minutes) * 60;
     return `PT${totalSeconds}S`;
+  }
+
+  transformWarrantyEndDateToBackend(
+    orderServiceDate: string,
+    warrantyTimeService: number,
+    index: number
+  ) {
+    if (orderServiceDate && warrantyTimeService) {
+      let serviceDate = new Date(orderServiceDate);
+      serviceDate.setDate(serviceDate.getDate() + warrantyTimeService);
+
+      let day = ('0' + serviceDate.getDate()).slice(-2);
+      let month = ('0' + (serviceDate.getMonth() + 1)).slice(-2);
+      let year = serviceDate.getFullYear();
+      let formattedDate = `${month}/${day}/${year}`;
+
+      this.orderServices
+        .at(index)
+        .get('warrantyEndDate')
+        ?.setValue(formattedDate);
+    }
+  }
+
+  formatDateToBackend(dateString: string) {
+    let date = new Date(dateString);
+
+    let day = ('0' + date.getDate()).slice(-2);
+    let month = ('0' + (date.getMonth() + 1)).slice(-2);
+    let year = date.getFullYear();
+
+    return `${year}-${day}-${month}`;
+  }
+
+  getWarrantyEndDateValue(index: number): string {
+    const warrantyEndDate = this.orderServices
+      .at(index)
+      .get('warrantyEndDate')?.value;
+    const serviceWarrantyTime = this.orderServices
+      .at(index)
+      .get('serviceWarrantyTime')?.value;
+
+    if (warrantyEndDate && serviceWarrantyTime) {
+      return `${warrantyEndDate} | ${serviceWarrantyTime} días de garantía`;
+    }
+
+    return '';
   }
 
   showSnackbar(message: string, isSuccess: boolean): void {
