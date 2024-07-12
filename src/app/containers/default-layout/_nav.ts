@@ -16,6 +16,21 @@ export const navItems: INavData[] = [
     iconComponent: { name: 'cil-list' },
   },
   {
+    name: 'Estadísticas',
+    url: '/estadisticas',
+    iconComponent: { name: 'cil-chart-pie' },
+    children: [
+      {
+        name: 'Estadísticas',
+        url: 'estadisticas',
+      },
+      {
+        name: 'Reportes',
+        url: '/app-reports',
+      },
+    ],
+  },
+  {
     name: 'Agendamiento',
     url: '/base/progress',
     iconComponent: { name: 'cil-briefcase' },

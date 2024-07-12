@@ -1,0 +1,51 @@
+<div class="container mt-3">
+  <h1 class="h3">Estadísticas de Servicio</h1>
+
+  <div class="calendar-container">
+    <label class="calendar-label">Seleccione una fecha de inicio:</label>
+    <input type="date" class="calendar-input" [(ngModel)]="startDate" (change)="onDateChange()">
+  </div>
+
+  <div class="calendar-container">
+    <label class="calendar-label">Seleccione una fecha de fin:</label>
+    <input type="date" class="calendar-input" [(ngModel)]="endDate" (change)="onDateChange()">
+  </div>
+
+  <div class="selection-container">
+    <label for="chartSelection">Seleccione una gráfica:</label>
+    <select id="chartSelection" (change)="onChartChange($event)">
+      <option value="serviceStatus">Estado de los Servicios</option>
+      <option value="serviceTypes">Tipos de Servicios por Mes</option>
+      <option value="technicianEffectiveness">Efectividad de Técnicos</option>
+      <option value="warrantiesByTechnician">Garantías por Técnico</option>
+      <option value="totalWarranties">Garantías Totales por Tipo</option>
+    </select>
+  </div>
+
+  <div class="chart-container" *ngIf="selectedChart === 'serviceStatus'">
+    <div echarts [options]="serviceStatusOptions" class="chart" style="height: 400px;"></div>
+  </div>
+  <div class="chart-container" *ngIf="selectedChart === 'serviceTypes'">
+    <div echarts [options]="serviceTypeOptions" class="chart" style="height: 400px;"></div>
+  </div>
+  <div class="chart-container" *ngIf="selectedChart === 'technicianEffectiveness'">
+    <div echarts [options]="technicianEffectivenessOptions" class="chart" style="height: 400px;"></div>
+  </div>
+  <div class="chart-container" *ngIf="selectedChart === 'warrantiesByTechnician'">
+    <div echarts [options]="warrantiesByTechnicianOptions" class="chart" style="height: 400px;"></div>
+  </div>
+  <div class="chart-container" *ngIf="selectedChart === 'totalWarranties'">
+    <div echarts [options]="totalWarrantiesOptions" class="chart" style="height: 400px;"></div>
+  </div>
+
+  <div class="buttons-container">
+    <button class="report-button" (click)="downloadTechnicianSettlementReport()">
+      <img src="path_to_your_image.png" alt="Icon" class="icon">
+      Generar Reporte de Liquidación de Técnicos
+    </button>
+    <button class="report-button" (click)="downloadServiceReports()">
+      <img src="path_to_your_image.png" alt="Icon" class="icon">
+      Generar Reporte de Servicios
+    </button>
+  </div>
+</div>

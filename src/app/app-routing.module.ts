@@ -5,6 +5,7 @@ import { DefaultLayoutComponent } from './containers';
 import { Page404Component } from './views/pages/page404/page404.component';
 import { Page500Component } from './views/pages/page500/page500.component';
 import { RegisterComponent } from './views/pages/register/register.component';
+import { ReportsComponent } from './modules/reports/reports.component';
 
 const routes: Routes = [
   {
@@ -19,9 +20,28 @@ const routes: Routes = [
       {
         path: 'inicio',
         loadChildren: () =>
-          import('./modules/home/home.module').then((m) => m.HomeModule),
+          import('./modules/dashboard/dashboard.module').then(
+            (m) => m.DashboardModule
+          ),
         data: {
           title: 'Inicio',
+        },
+      },
+      {
+        path: 'estadisticas',
+        loadChildren: () =>
+          import('./modules/statistics/statistics.module').then(
+            (m) => m.StatisticsModule
+          ),
+        data: {
+          title: 'Estadísticas',
+        },
+      },
+      {
+        path: 'app-reports',
+        component: ReportsComponent,
+        data: {
+          title: 'Reportes',
         },
       },
       {

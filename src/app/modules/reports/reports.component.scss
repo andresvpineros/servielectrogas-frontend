@@ -1,0 +1,40 @@
+.reportes-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px; // Espacio entre los botones
+  margin-top: 50px;
+}
+
+.report-button {
+  background-color: #007bff; // Color de fondo
+  color: white; // Color del texto
+  border: none; // Sin bordes
+  padding: 15px 30px; // Espaciado interno
+  font-size: 18px; // Tamaño del texto
+  border-radius: 8px; // Bordes redondeados
+  cursor: pointer; // Cursor al pasar por encima
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); // Sombra
+  transition: background-color 0.3s, transform 0.3s; // Transiciones suaves
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 300px; // Ancho mínimo
+  text-align: center;
+}
+
+.report-button:hover {
+  background-color: #0056b3; // Color de fondo al pasar por encima
+  transform: translateY(-2px); // Levantar botón al pasar por encima
+}
+
+.report-button:active {
+  background-color: #004085; // Color de fondo al hacer clic
+  transform: translateY(1px); // Hundir botón al hacer clic
+}
+
+.icon {
+  width: 40px; // Ancho del icono
+  height: 40px; // Altura del icono
+  margin-right: 10px; // Espacio entre el icono y el texto
+}

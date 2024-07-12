@@ -192,11 +192,6 @@ export class UpdateOrdersComponent {
         orderService.duration = this.transformDurationToBackend(
           orderService.duration
         );
-        console.log(
-          orderService.warrantyOrderServiceId !== null,
-          orderService.warrantyOrderServiceId !== '',
-          orderService.warrantyOrderServiceId
-        );
         if (
           orderService.warrantyOrderServiceId !== null &&
           orderService.warrantyOrderServiceId !== ''
