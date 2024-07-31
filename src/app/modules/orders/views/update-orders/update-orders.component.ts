@@ -206,11 +206,13 @@ export class UpdateOrdersComponent {
           );
         }
       });
-
+      console.log('updating');
       this.ordersService.updateOrder(this.id || null, order).subscribe(
         (response) => {
           this.showSnackbar('Orden actualizada exitosamente', true);
+          console.log('BEFORE GETTING ORDER WHEN UPDATED');
           this.orderServices.setValue([]);
+          console.log('IS NOT REACHING GET ORDER CALL SERVICE');
           this.getOrder(this.id || null);
         },
         (error) => {
@@ -226,7 +228,7 @@ export class UpdateOrdersComponent {
 
   getOrder(id: number | null) {
     const response = this.ordersService.getOrderById(id || null);
-
+    console.log('Getting order', id);
     response.subscribe({
       next: (value: any) => {
         const { data } = value;
@@ -234,6 +236,8 @@ export class UpdateOrdersComponent {
         data.orderServices.map((service: OrderService) =>
           this.orderServices.push(this.initOrderServiceFormGroup(service))
         );
+
+        console.log(data.orderServices);
 
         this.totalOrderServices = data.orderServices.filter(
           (service: OrderService, i: number) => {

@@ -148,6 +148,7 @@ export class AddOrdersComponent {
       selectedService.warrantyTime,
       index
     );
+
     this.updateTotalCharged();
   }
 
@@ -265,7 +266,7 @@ export class AddOrdersComponent {
     let month = ('0' + (date.getMonth() + 1)).slice(-2);
     let year = date.getFullYear();
 
-    return `${year}-${day}-${month}`;
+    return `${year}-${month}-${day}`;
   }
 
   getWarrantyEndDateValue(index: number): string {

@@ -19,6 +19,7 @@ export class OrderService {
   warrantyStartDate: string;
   warrantyEndDate: string;
   warrantyReason: string;
+  alreadyCreated: boolean;
 
   constructor(data: any) {
     this.id = data.id;
@@ -39,5 +40,6 @@ export class OrderService {
     this.warrantyStartDate = data.warrantyStartDate;
     this.warrantyEndDate = data.warrantyEndDate;
     this.warrantyReason = data.warrantyReason;
+    this.alreadyCreated = data.alreadyCreated;
   }
 }
